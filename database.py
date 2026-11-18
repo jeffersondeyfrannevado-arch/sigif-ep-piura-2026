@@ -9,6 +9,7 @@ Soporta:
   - Registro automático de incidencias y alertas cuando un equipo real cae o supera el umbral de latencia.
 """
 
+import hashlib
 import random
 import sqlite3
 import threading
@@ -35,6 +36,7 @@ class DatabaseManager:
         self._init_schema()
         self._migrate_schema_if_needed()
         self._seed_initial_data_if_empty()
+        self._seed_usuarios_sistema_if_empty()
 
     def _get_connection(self) -> sqlite3.Connection:
         conn = sqlite3.connect(str(self.db_path), timeout=25.0, check_same_thread=False)
@@ -182,6 +184,30 @@ class DatabaseManager:
                     item_16 INTEGER NOT NULL,
                     puntaje_total INTEGER NOT NULL,
                     fecha_registro TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS usuarios_sistema (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    password_hint TEXT NOT NULL,
+                    nombres_apellidos TEXT NOT NULL,
+                    rol TEXT NOT NULL, -- ADMINISTRADOR, SUB_ADMINISTRADOR, USUARIO
+                    area TEXT NOT NULL,
+                    cargo TEXT NOT NULL,
+                    correo TEXT NOT NULL,
+                    estado TEXT DEFAULT 'ACTIVO',
+                    ultimo_acceso TEXT
+                );
+
+                CREATE TABLE IF NOT EXISTS auditoria_accesos (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL,
+                    nombres_apellidos TEXT NOT NULL,
+                    rol TEXT NOT NULL,
+                    accion TEXT NOT NULL,
+                    ip_origen TEXT NOT NULL,
+                    fecha_hora TEXT NOT NULL
                 );
                 """
             )
@@ -1027,5 +1053,314 @@ class DatabaseManager:
             rows = conn.execute(
                 "SELECT * FROM encuesta_percepcion WHERE fase = ? ORDER BY id ASC",
                 (fase,),
+            ).fetchall()
+            return [dict(r) for r in rows]
+
+    # =========================================================================
+    # AUTENTICACIÓN Y CONTROL DE ACCESO BASADO EN ROLES (RBAC: 3 ROLES)
+    # Roles: ADMINISTRADOR | SUB_ADMINISTRADOR | USUARIO
+    # =========================================================================
+
+    @staticmethod
+    def _hash_password(password: str) -> str:
+        salted = f"SIGIF_UCV_2026::{password.strip()}"
+        return hashlib.sha256(salted.encode("utf-8")).hexdigest()
+
+    @staticmethod
+    def get_permisos_por_rol(rol: str) -> Dict[str, Any]:
+        rol_up = rol.upper().strip()
+        if rol_up == "ADMINISTRADOR":
+            return {
+                "rol": "ADMINISTRADOR",
+                "etiqueta_rol": "Administrador General TI",
+                "puede_escanear_red": True,
+                "puede_simular_fallas": True,
+                "puede_crear_incidencias": True,
+                "puede_atender_resolver_incidencias": True,
+                "puede_ver_alertas": True,
+                "puede_usar_consola_bajo_nivel": True,
+                "puede_ver_estadistica_tesis": True,
+                "puede_exportar_reportes": True,
+                "puede_administrar_usuarios": True,
+                "descripcion_alcance": (
+                    "Control total del sistema: descubrimiento ICMP/ARP, gestión ITIL v4, "
+                    "consola de bajo nivel, evaluación estadística O1-X-O2, reportes y gestión de usuarios/roles."
+                ),
+            }
+        elif rol_up == "SUB_ADMINISTRADOR":
+            return {
+                "rol": "SUB_ADMINISTRADOR",
+                "etiqueta_rol": "Sub-Administrador / Soporte Técnico TI",
+                "puede_escanear_red": True,
+                "puede_simular_fallas": True,
+                "puede_crear_incidencias": True,
+                "puede_atender_resolver_incidencias": True,
+                "puede_ver_alertas": True,
+                "puede_usar_consola_bajo_nivel": True,
+                "puede_ver_estadistica_tesis": True,
+                "puede_exportar_reportes": True,
+                "puede_administrar_usuarios": False,
+                "descripcion_alcance": (
+                    "Supervisión operativa y soporte técnico: monitoreo de red en vivo, "
+                    "atención y resolución de tickets ITIL v4, bandeja de alertas, consola PING/ARP y exportación de reportes."
+                ),
+            }
+        else:
+            return {
+                "rol": "USUARIO",
+                "etiqueta_rol": "Usuario Administrativo / Institucional",
+                "puede_escanear_red": False,
+                "puede_simular_fallas": False,
+                "puede_crear_incidencias": True,
+                "puede_atender_resolver_incidencias": False,
+                "puede_ver_alertas": True,
+                "puede_usar_consola_bajo_nivel": False,
+                "puede_ver_estadistica_tesis": False,
+                "puede_exportar_reportes": True,
+                "puede_administrar_usuarios": False,
+                "descripcion_alcance": (
+                    "Consulta de estado de equipos de su área, reporte de nuevas incidencias "
+                    "informáticas y seguimiento en vivo de la atención técnica."
+                ),
+            }
+
+    def _seed_usuarios_sistema_if_empty(self) -> None:
+        with self._lock, self._get_connection() as conn:
+            cnt = conn.execute("SELECT COUNT(*) FROM usuarios_sistema").fetchone()[0]
+            if cnt > 0:
+                return
+
+            now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            cuentas_iniciales = [
+                # 1. ADMINISTRADORES
+                (
+                    "admin",
+                    self._hash_password("admin2026"),
+                    "admin2026",
+                    "Ing. Jefferson Deyfrank Nevado Fiestas",
+                    "ADMINISTRADOR",
+                    "Unidad de Soporte Técnico TI",
+                    "Administrador General del Sistema / Coautor Tesis",
+                    "jnevado@ucvvirtual.edu.pe",
+                    "ACTIVO",
+                    now_str,
+                ),
+                (
+                    "mtoro",
+                    self._hash_password("admin2026"),
+                    "admin2026",
+                    "Ing. Mario Andre Toro Agurto",
+                    "ADMINISTRADOR",
+                    "Unidad de Soporte Técnico TI",
+                    "Administrador de Red e Infraestructura / Coautor Tesis",
+                    "mtoro@ucvvirtual.edu.pe",
+                    "ACTIVO",
+                    now_str,
+                ),
+                # 2. SUB-ADMINISTRADORES
+                (
+                    "subadmin",
+                    self._hash_password("sub2026"),
+                    "sub2026",
+                    "Sr. Walter More Rondoy",
+                    "SUB_ADMINISTRADOR",
+                    "Oficina de SIAGIE",
+                    "Sub-Administrador Institucional / Jefe SIAGIE(e)",
+                    "wmore.siagie@educacionpiura.gob.pe",
+                    "ACTIVO",
+                    now_str,
+                ),
+                (
+                    "soporte",
+                    self._hash_password("sub2026"),
+                    "sub2026",
+                    "Téc. Rosa María Valladolid Bereche",
+                    "SUB_ADMINISTRADOR",
+                    "Unidad de Soporte Técnico TI",
+                    "Sub-Administradora de Mesa de Ayuda ITIL v4",
+                    "rvalladolid.ti@educacionpiura.gob.pe",
+                    "ACTIVO",
+                    now_str,
+                ),
+                # 3. USUARIOS INSTITUCIONALES
+                (
+                    "usuario",
+                    self._hash_password("user2026"),
+                    "user2026",
+                    "Lic. Carmen Rosa Castillo Ruiz",
+                    "USUARIO",
+                    "Oficina de SIAGIE",
+                    "Asistente de Registro SIAGIE (Usuario Institucional)",
+                    "ccastillo@educacionpiura.gob.pe",
+                    "ACTIVO",
+                    now_str,
+                ),
+                (
+                    "docente",
+                    self._hash_password("user2026"),
+                    "user2026",
+                    "Prof. César Augusto Juárez Talledo",
+                    "USUARIO",
+                    "Laboratorio de Cómputo 01",
+                    "Docente Responsable de AIP / Lab 01",
+                    "cjuarez@educacionpiura.gob.pe",
+                    "ACTIVO",
+                    now_str,
+                ),
+            ]
+            conn.executemany(
+                """
+                INSERT INTO usuarios_sistema
+                (username, password_hash, password_hint, nombres_apellidos, rol, area, cargo, correo, estado, ultimo_acceso)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                cuentas_iniciales,
+            )
+            conn.execute(
+                """
+                INSERT INTO auditoria_accesos
+                (username, nombres_apellidos, rol, accion, ip_origen, fecha_hora)
+                VALUES ('admin', 'Ing. Jefferson Deyfrank Nevado Fiestas', 'ADMINISTRADOR',
+                        'Inicialización del Sistema RBAC (3 niveles de acceso)', '127.0.0.1', ?)
+                """,
+                (now_str,),
+            )
+
+    def autenticar_usuario(self, username: str, password: str, ip_origen: str = "127.0.0.1") -> Optional[Dict[str, Any]]:
+        uname = username.strip().lower()
+        phash = self._hash_password(password)
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with self._lock, self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM usuarios_sistema WHERE LOWER(username) = ? AND password_hash = ? AND estado = 'ACTIVO'",
+                (uname, phash),
+            ).fetchone()
+
+            if not row:
+                return None
+
+            user_dict = dict(row)
+            user_dict.pop("password_hash", None)
+            user_dict["permisos"] = self.get_permisos_por_rol(user_dict["rol"])
+
+            conn.execute(
+                "UPDATE usuarios_sistema SET ultimo_acceso = ? WHERE id = ?",
+                (now_str, user_dict["id"]),
+            )
+            conn.execute(
+                """
+                INSERT INTO auditoria_accesos
+                (username, nombres_apellidos, rol, accion, ip_origen, fecha_hora)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    user_dict["username"],
+                    user_dict["nombres_apellidos"],
+                    user_dict["rol"],
+                    f"Inicio de sesión exitoso ({user_dict['permisos']['etiqueta_rol']})",
+                    ip_origen,
+                    now_str,
+                ),
+            )
+            return user_dict
+
+    def registrar_cierre_sesion(self, username: str, ip_origen: str = "127.0.0.1") -> None:
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with self._lock, self._get_connection() as conn:
+            row = conn.execute(
+                "SELECT * FROM usuarios_sistema WHERE LOWER(username) = ?",
+                (username.strip().lower(),),
+            ).fetchone()
+            if row:
+                conn.execute(
+                    """
+                    INSERT INTO auditoria_accesos
+                    (username, nombres_apellidos, rol, accion, ip_origen, fecha_hora)
+                    VALUES (?, ?, ?, 'Cierre de sesión de usuario', ?, ?)
+                    """,
+                    (row["username"], row["nombres_apellidos"], row["rol"], ip_origen, now_str),
+                )
+
+    def get_usuarios_sistema(self) -> List[Dict[str, Any]]:
+        with self._lock, self._get_connection() as conn:
+            rows = conn.execute(
+                "SELECT id, username, password_hint, nombres_apellidos, rol, area, cargo, correo, estado, ultimo_acceso FROM usuarios_sistema ORDER BY id ASC"
+            ).fetchall()
+            result = []
+            for r in rows:
+                d = dict(r)
+                d["permisos"] = self.get_permisos_por_rol(d["rol"])
+                result.append(d)
+            return result
+
+    def crear_usuario_sistema(
+        self,
+        username: str,
+        password: str,
+        nombres_apellidos: str,
+        rol: str,
+        area: str,
+        cargo: str,
+        correo: str,
+    ) -> Dict[str, Any]:
+        uname = username.strip().lower()
+        rol_clean = rol.upper().strip()
+        if rol_clean not in ("ADMINISTRADOR", "SUB_ADMINISTRADOR", "USUARIO"):
+            rol_clean = "USUARIO"
+        phash = self._hash_password(password)
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with self._lock, self._get_connection() as conn:
+            cur = conn.execute(
+                """
+                INSERT INTO usuarios_sistema
+                (username, password_hash, password_hint, nombres_apellidos, rol, area, cargo, correo, estado, ultimo_acceso)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVO', ?)
+                """,
+                (uname, phash, password.strip(), nombres_apellidos.strip(), rol_clean, area, cargo, correo, now_str),
+            )
+            uid = cur.lastrowid
+            conn.execute(
+                """
+                INSERT INTO auditoria_accesos
+                (username, nombres_apellidos, rol, accion, ip_origen, fecha_hora)
+                VALUES (?, ?, ?, ?, '127.0.0.1', ?)
+                """,
+                (uname, nombres_apellidos.strip(), rol_clean, f"Creación de nueva cuenta con rol {rol_clean}", now_str),
+            )
+            row = conn.execute(
+                "SELECT id, username, password_hint, nombres_apellidos, rol, area, cargo, correo, estado, ultimo_acceso FROM usuarios_sistema WHERE id = ?",
+                (uid,),
+            ).fetchone()
+            return dict(row)
+
+    def actualizar_rol_estado_usuario(self, user_id: int, nuevo_rol: str, nuevo_estado: str) -> Dict[str, Any]:
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        with self._lock, self._get_connection() as conn:
+            conn.execute(
+                "UPDATE usuarios_sistema SET rol = ?, estado = ? WHERE id = ?",
+                (nuevo_rol.upper().strip(), nuevo_estado.upper().strip(), user_id),
+            )
+            row = conn.execute(
+                "SELECT id, username, password_hint, nombres_apellidos, rol, area, cargo, correo, estado, ultimo_acceso FROM usuarios_sistema WHERE id = ?",
+                (user_id,),
+            ).fetchone()
+            if not row:
+                raise ValueError("Usuario no encontrado")
+            conn.execute(
+                """
+                INSERT INTO auditoria_accesos
+                (username, nombres_apellidos, rol, accion, ip_origen, fecha_hora)
+                VALUES (?, ?, ?, ?, '127.0.0.1', ?)
+                """,
+                (row["username"], row["nombres_apellidos"], row["rol"], f"Actualización de privilegios a {row['rol']} ({row['estado']})", now_str),
+            )
+            return dict(row)
+
+    def get_auditoria_accesos(self, limit: int = 50) -> List[Dict[str, Any]]:
+        with self._lock, self._get_connection() as conn:
+            rows = conn.execute(
+                "SELECT * FROM auditoria_accesos ORDER BY id DESC LIMIT ?", (limit,)
             ).fetchall()
             return [dict(r) for r in rows]

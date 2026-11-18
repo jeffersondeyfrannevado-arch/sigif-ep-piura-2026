@@ -86,3 +86,28 @@ CREATE TABLE IF NOT EXISTS alertas (
     leida INTEGER DEFAULT 0,
     destinatario VARCHAR(150) DEFAULT 'Unidad de Soporte Técnico TI'
 );
+
+CREATE TABLE IF NOT EXISTS usuarios_sistema (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(128) NOT NULL,
+    password_hint VARCHAR(50) NOT NULL,
+    nombres_apellidos VARCHAR(150) NOT NULL,
+    rol VARCHAR(30) NOT NULL, -- ADMINISTRADOR, SUB_ADMINISTRADOR, USUARIO
+    area VARCHAR(150) NOT NULL,
+    cargo VARCHAR(150) NOT NULL,
+    correo VARCHAR(150) NOT NULL,
+    estado VARCHAR(20) DEFAULT 'ACTIVO',
+    ultimo_acceso TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS auditoria_accesos (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    nombres_apellidos VARCHAR(150) NOT NULL,
+    rol VARCHAR(30) NOT NULL,
+    accion VARCHAR(200) NOT NULL,
+    ip_origen VARCHAR(50) NOT NULL,
+    fecha_hora TIMESTAMP DEFAULT NOW()
+);
+

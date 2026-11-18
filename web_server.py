@@ -131,6 +131,14 @@ class SIGIFRequestHandler(BaseHTTPRequestHandler):
                 self._send_json(self.analytics.obtener_analisis_estadistico_tesis())
                 return
 
+            if path == "/api/usuarios_sistema":
+                self._send_json(self.db.get_usuarios_sistema())
+                return
+
+            if path == "/api/auditoria_accesos":
+                self._send_json(self.db.get_auditoria_accesos(limit=60))
+                return
+
             if path == "/api/exportar":
                 tipo = qs.get("tipo", ["csv_incidencias"])[0]
                 if tipo == "csv_spss":
@@ -251,6 +259,49 @@ class SIGIFRequestHandler(BaseHTTPRequestHandler):
                 open_ports, _ = self.scanner.probe_tcp_ports(ip, timeout_sec=0.22)
                 res["puertos_abiertos"] = open_ports
                 self._send_json(res)
+                return
+
+            if path == "/api/login":
+                username = str(body.get("username", ""))
+                password = str(body.get("password", ""))
+                client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
+                user = self.db.autenticar_usuario(username, password, ip_origen=client_ip)
+                if not user:
+                    self._send_json(
+                        {"ok": False, "error": "Credenciales incorrectas o cuenta inactiva. Verifique su usuario y contraseña."},
+                        status=401,
+                    )
+                else:
+                    self._send_json({"ok": True, "usuario": user})
+                return
+
+            if path == "/api/logout":
+                username = str(body.get("username", ""))
+                client_ip = self.client_address[0] if self.client_address else "127.0.0.1"
+                if username:
+                    self.db.registrar_cierre_sesion(username, ip_origen=client_ip)
+                self._send_json({"ok": True})
+                return
+
+            if path == "/api/crear_usuario_sistema":
+                nuevo = self.db.crear_usuario_sistema(
+                    username=str(body.get("username", "")),
+                    password=str(body.get("password", "user2026")),
+                    nombres_apellidos=str(body.get("nombres_apellidos", "")),
+                    rol=str(body.get("rol", "USUARIO")),
+                    area=str(body.get("area", "Oficina de SIAGIE")),
+                    cargo=str(body.get("cargo", "Colaborador Institucional")),
+                    correo=str(body.get("correo", "usuario@educacionpiura.gob.pe")),
+                )
+                self._send_json({"ok": True, "usuario": nuevo})
+                return
+
+            if path == "/api/actualizar_usuario_sistema":
+                uid = int(body.get("user_id"))
+                nuevo_rol = str(body.get("rol", "USUARIO"))
+                nuevo_estado = str(body.get("estado", "ACTIVO"))
+                upd = self.db.actualizar_rol_estado_usuario(uid, nuevo_rol, nuevo_estado)
+                self._send_json({"ok": True, "usuario": upd})
                 return
 
             self._send_json({"error": f"Endpoint POST no válido: {path}"}, status=404)

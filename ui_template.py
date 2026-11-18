@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Plantilla HTML5 / CSS3 / JS (Single-Page Application Institucional con Monitoreo de Red Real en Vivo)
+Plantilla HTML5 / CSS3 / JS (Single-Page Application con Login RBAC de 3 Roles y Monitoreo de Red Real)
 Sistema: SIGIF-EP Piura 2026
-Muestra en vivo todos los dispositivos reales conectados a la subred LAN/Wi-Fi actual (ej. 192.168.0.0/24),
-la telemetría física de hardware/Wi-Fi de la estación local, y toda la gestión ITIL v4 y evaluación
-estadística de la tesis (Preprueba O1 vs Posprueba O2, Alfa de Cronbach = 0.9468).
+Incluye:
+  - Pantalla de Inicio de Sesión Institucional (Administrador, Sub-Administrador, Usuario)
+  - Control de Acceso Basado en Roles (RBAC) dinámico en toda la interfaz
+  - Módulo 7 exclusivo para Administrador: Gestión de Cuentas, Roles y Auditoría de Accesos
+  - Escáner de Red Real en Vivo (ICMP / ARP / Puertos TCP) y Telemetría de Hardware Local
 """
 
 DASHBOARD_HTML = r"""<!DOCTYPE html>
@@ -12,7 +14,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SIGIF-EP Piura 2026 | Escáner de Red Real en Vivo (ICMP/ARP/TCP) y Gestión de Incidencias</title>
+<title>SIGIF-EP Piura 2026 | Login Institucional y Monitoreo de Red Real en Vivo</title>
 <style>
   :root {
     --ucv-navy: #0f2547;
@@ -41,8 +43,179 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     display: flex;
     min-height: 100vh;
   }
+
+  /* ======================================================================= */
+  /* PANTALLA DE INICIO DE SESIÓN (LOGIN OVERLAY)                            */
+  /* ======================================================================= */
+  .login-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 20% 20%, #173463 0%, #09152b 100%);
+    z-index: 5000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .login-overlay.hidden { display: none; }
+  .login-card {
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 940px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1.08fr 1fr;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+  }
+  @media (max-width: 820px) {
+    .login-card { grid-template-columns: 1fr; }
+  }
+  .login-left {
+    background: linear-gradient(155deg, #0f2547 0%, #1e3a8a 100%);
+    color: #ffffff;
+    padding: 32px 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .login-ucv-tag {
+    display: inline-block;
+    background: var(--ucv-red);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 5px;
+    letter-spacing: 0.6px;
+    margin-bottom: 12px;
+  }
+  .login-left h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .login-left p {
+    margin: 0 0 16px 0;
+    font-size: 13px;
+    color: #cbd5e1;
+    line-height: 1.5;
+  }
+  .role-quick-box {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 10px;
+    padding: 13px 14px;
+    margin-top: 8px;
+  }
+  .role-quick-box h4 {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    color: #93c5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .role-card-btn {
+    width: 100%;
+    background: rgba(15,23,42,0.55);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    border-radius: 8px;
+    padding: 9px 12px;
+    margin-bottom: 8px;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.15s;
+  }
+  .role-card-btn:hover {
+    background: rgba(37,99,235,0.55);
+    border-color: #60a5fa;
+    transform: translateX(3px);
+  }
+  .role-card-btn:last-child { margin-bottom: 0; }
+  .role-card-title { font-size: 12.5px; font-weight: 700; display: block; }
+  .role-card-sub { font-size: 11px; color: #cbd5e1; }
+  .role-pill {
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.16);
+    white-space: nowrap;
+  }
+  .login-right {
+    padding: 34px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .login-right h2 {
+    margin: 0 0 6px 0;
+    font-size: 21px;
+    color: var(--ucv-navy);
+  }
+  .login-right .sub {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+  .form-group { margin-bottom: 15px; }
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 5px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13.5px;
+    transition: border-color 0.15s;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--ucv-blue);
+    box-shadow: 0 0 0 3px rgba(29,78,216,0.12);
+  }
+  .login-error {
+    display: none;
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+    padding: 9px 12px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .btn-login-submit {
+    width: 100%;
+    background: var(--ucv-blue);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 4px;
+  }
+  .btn-login-submit:hover { background: #1e40af; }
+
+  /* ======================================================================= */
+  /* LAYOUT PRINCIPAL DEL DASHBOARD                                          */
+  /* ======================================================================= */
   .sidebar {
-    width: 275px;
+    width: 280px;
     background: linear-gradient(180deg, #0b1d3a 0%, #173463 100%);
     color: #fff;
     display: flex;
@@ -51,7 +224,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     box-shadow: 2px 0 12px rgba(0,0,0,0.18);
   }
   .brand {
-    padding: 18px 20px;
+    padding: 16px 18px;
     border-bottom: 1px solid rgba(255,255,255,0.14);
   }
   .brand-badge {
@@ -67,22 +240,43 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
   }
   .brand h1 { margin: 0; font-size: 18px; font-weight: 800; }
   .brand p { margin: 4px 0 0 0; font-size: 11.5px; color: #cbd5e1; line-height: 1.35; }
-  .nav-menu { padding: 14px 10px; flex: 1; }
+
+  .user-profile-box {
+    margin: 12px 12px 4px 12px;
+    padding: 11px 12px;
+    background: rgba(255,255,255,0.09);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 9px;
+  }
+  .user-role-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    letter-spacing: 0.4px;
+  }
+  .role-ADMINISTRADOR { background: #dc2626; color: #fff; }
+  .role-SUB_ADMINISTRADOR { background: #d97706; color: #fff; }
+  .role-USUARIO { background: #16a34a; color: #fff; }
+
+  .nav-menu { padding: 10px 10px; flex: 1; }
   .nav-btn {
     width: 100%;
     background: transparent;
     border: none;
     color: #e2e8f0;
     text-align: left;
-    padding: 11px 14px;
+    padding: 10px 13px;
     border-radius: 8px;
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
     transition: all 0.15s ease;
   }
   .nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
@@ -91,6 +285,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     color: #fff;
     box-shadow: 0 2px 8px rgba(37,99,235,0.4);
   }
+  .nav-btn.hidden-by-role { display: none !important; }
   .nav-badge {
     background: var(--ucv-red);
     color: #fff;
@@ -100,7 +295,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     font-weight: 700;
   }
   .sidebar-footer {
-    padding: 14px 16px;
+    padding: 13px 16px;
     background: rgba(0,0,0,0.25);
     font-size: 11px;
     color: #cbd5e1;
@@ -123,9 +318,9 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     flex-wrap: wrap;
     gap: 10px;
   }
-  .topbar-title h2 { margin: 0; font-size: 17px; color: var(--ucv-navy); }
+  .topbar-title h2 { margin: 0; font-size: 16.5px; color: var(--ucv-navy); }
   .topbar-title span { font-size: 12px; color: var(--text-muted); }
-  .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .status-pill {
     display: inline-flex;
     align-items: center;
@@ -153,7 +348,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
   .btn {
     border: none;
     border-radius: 7px;
-    padding: 8px 14px;
+    padding: 8px 13px;
     font-size: 12.5px;
     font-weight: 600;
     cursor: pointer;
@@ -247,7 +442,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
   }
   .card-header h3 { margin: 0; font-size: 15.5px; color: var(--ucv-navy); }
   .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
-  select, input[type="text"], textarea {
+  select, input[type="text"], input[type="password"], textarea {
     padding: 7px 11px;
     border: 1px solid var(--border-col);
     border-radius: 6px;
@@ -299,10 +494,10 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     font-size: 10.5px;
     font-weight: 700;
   }
-  .badge-OPERATIVO, .badge-Resuelto { background: var(--ok-bg); color: #166534; }
-  .badge-LENTO, .badge-Media, .badge-ADVERTENCIA, .badge-EnAtencion { background: var(--warn-bg); color: #92400e; }
-  .badge-INOPERATIVO, .badge-Critica, .badge-Alta, .badge-CRITICA, .badge-Pendiente { background: var(--err-bg); color: #991b1b; }
-  .badge-ALERTA_ARP, .badge-Escalado { background: var(--arp-bg); color: #5b21b6; }
+  .badge-OPERATIVO, .badge-Resuelto, .badge-ACTIVO { background: var(--ok-bg); color: #166534; }
+  .badge-LENTO, .badge-Media, .badge-ADVERTENCIA, .badge-EnAtencion, .badge-SUB_ADMINISTRADOR { background: var(--warn-bg); color: #92400e; }
+  .badge-INOPERATIVO, .badge-Critica, .badge-Alta, .badge-CRITICA, .badge-Pendiente, .badge-ADMINISTRADOR, .badge-INACTIVO { background: var(--err-bg); color: #991b1b; }
+  .badge-ALERTA_ARP, .badge-Escalado, .badge-USUARIO { background: var(--arp-bg); color: #5b21b6; }
 
   .eq-area { font-size: 11.5px; font-weight: 700; color: #1e40af; margin-bottom: 5px; }
   .eq-meta { font-size: 11.5px; color: #334155; line-height: 1.5; margin-bottom: 8px; }
@@ -379,7 +574,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 2000;
+    z-index: 6000;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -399,6 +594,84 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
 </head>
 <body>
 
+  <!-- ===================================================================== -->
+  <!-- PANTALLA DE LOGIN INSTITUCIONAL (3 ROLES: ADMIN, SUB-ADMIN, USUARIO)  -->
+  <!-- ===================================================================== -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-card">
+      <div class="login-left">
+        <div>
+          <span class="login-ucv-tag">UNIVERSIDAD CÉSAR VALLEJO • PIURA 2026</span>
+          <h1>SIGIF-EP Piura 2026</h1>
+          <p>
+            Aplicación para la detección y gestión de incidencias y fallas en equipos informáticos de una entidad educativa pública Piura 2026.
+          </p>
+
+          <div class="role-quick-box">
+            <h4>⚡ Acceso Rápido por Rol (Clic para autocompletar):</h4>
+
+            <button type="button" class="role-card-btn" onclick="autocompletarLogin('admin', 'admin2026')">
+              <div>
+                <span class="role-card-title">👑 1. Rol Administrador General</span>
+                <span class="role-card-sub">Ing. Jefferson Nevado / Ing. Mario Toro — Control Total + Usuarios</span>
+              </div>
+              <span class="role-pill" style="background:#dc2626;">admin / admin2026</span>
+            </button>
+
+            <button type="button" class="role-card-btn" onclick="autocompletarLogin('subadmin', 'sub2026')">
+              <div>
+                <span class="role-card-title">🛠️ 2. Rol Sub-Administrador (Soporte TI / SIAGIE)</span>
+                <span class="role-card-sub">Sr. Walter More Rondoy — Monitoreo, Atención ITIL v4 y Reportes</span>
+              </div>
+              <span class="role-pill" style="background:#d97706;">subadmin / sub2026</span>
+            </button>
+
+            <button type="button" class="role-card-btn" onclick="autocompletarLogin('usuario', 'user2026')">
+              <div>
+                <span class="role-card-title">👤 3. Rol Usuario Institucional</span>
+                <span class="role-card-sub">Lic. Carmen Castillo — Consulta de Equipos y Reporte de Fallas</span>
+              </div>
+              <span class="role-pill" style="background:#16a34a;">usuario / user2026</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="font-size:11.5px;color:#cbd5e1;margin-top:18px;border-top:1px solid rgba(255,255,255,0.15);padding-top:12px;">
+          <strong>Autores:</strong> Toro Agurto, Mario Andre &amp; Nevado Fiestas, Jefferson Deyfrank<br>
+          <strong>Asesor:</strong> Dr. Ancajima Miñán, Víctor Ángel • <strong>Ley N.° 29733</strong>
+        </div>
+      </div>
+
+      <div class="login-right">
+        <h2>Iniciar Sesión en el Sistema</h2>
+        <div class="sub">Ingrese sus credenciales institucionales o seleccione un perfil a la izquierda:</div>
+
+        <div class="login-error" id="login-error-box"></div>
+
+        <form onsubmit="ejecutarLogin(event)">
+          <div class="form-group">
+            <label for="login-username">Usuario Institucional:</label>
+            <input type="text" id="login-username" class="form-input" value="admin" placeholder="Ej. admin, subadmin o usuario" required>
+          </div>
+          <div class="form-group">
+            <label for="login-password">Contraseña de Acceso:</label>
+            <input type="password" id="login-password" class="form-input" value="admin2026" placeholder="Ingrese su contraseña" required>
+          </div>
+          <button type="submit" class="btn-login-submit" id="btn-login-submit">
+            🔐 Ingresar al Sistema SIGIF-EP
+          </button>
+        </form>
+
+        <div style="margin-top:18px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:11px 13px;font-size:11.5px;color:#475569;line-height:1.5;">
+          <strong>Seguridad RBAC (3 Niveles):</strong><br>
+          • <strong>Administrador:</strong> Acceso total + Gestión de Usuarios y Roles.<br>
+          • <strong>Sub-Administrador:</strong> Escaneo de red real, atención de incidencias ITIL y reportes.<br>
+          • <strong>Usuario:</strong> Visualización de equipos, reporte de fallas y seguimiento de tickets.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
@@ -407,27 +680,38 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
       <p>Escáner Real LAN/Wi-Fi (PING, ARP, ICMP, TCP) y Gestión ITIL v4</p>
     </div>
 
+    <!-- PERFIL DE SESIÓN ACTIVA -->
+    <div class="user-profile-box">
+      <span class="user-role-tag role-ADMINISTRADOR" id="sb-user-role">ADMINISTRADOR</span>
+      <div style="font-size:13px;font-weight:800;color:#fff;line-height:1.25;" id="sb-user-name">Ing. Jefferson Nevado</div>
+      <div style="font-size:11px;color:#93c5fd;margin-top:2px;" id="sb-user-area">Unidad de Soporte Técnico TI</div>
+    </div>
+
     <nav class="nav-menu">
-      <button class="nav-btn active" onclick="switchTab('tab-monitoreo', this)">
+      <button class="nav-btn active" id="nav-tab-monitoreo" onclick="switchTab('tab-monitoreo', this)">
         <span>1. Red Real en Vivo (LAN/Wi-Fi)</span>
         <span class="nav-badge" style="background:#16a34a" id="nav-real-count">0</span>
       </button>
-      <button class="nav-btn" onclick="switchTab('tab-incidencias', this)">
+      <button class="nav-btn" id="nav-tab-incidencias" onclick="switchTab('tab-incidencias', this)">
         <span>2. Gestión de Incidencias</span>
         <span class="nav-badge" id="nav-inc-count">0</span>
       </button>
-      <button class="nav-btn" onclick="switchTab('tab-alertas', this)">
+      <button class="nav-btn" id="nav-tab-alertas" onclick="switchTab('tab-alertas', this)">
         <span>3. Alertas y Notificaciones</span>
         <span class="nav-badge" id="nav-alert-count">0</span>
       </button>
-      <button class="nav-btn" onclick="switchTab('tab-consola', this)">
+      <button class="nav-btn" id="nav-tab-consola" onclick="switchTab('tab-consola', this)">
         <span>4. Consola PING / ARP / Puertos</span>
       </button>
-      <button class="nav-btn" onclick="switchTab('tab-estadistica', this)">
+      <button class="nav-btn" id="nav-tab-estadistica" onclick="switchTab('tab-estadistica', this)">
         <span>5. Evaluación O1-X-O2 y Alfa</span>
       </button>
-      <button class="nav-btn" onclick="switchTab('tab-reportes', this)">
+      <button class="nav-btn" id="nav-tab-reportes" onclick="switchTab('tab-reportes', this)">
         <span>6. Reportes y Exportación</span>
+      </button>
+      <button class="nav-btn" id="nav-tab-usuarios" onclick="switchTab('tab-usuarios', this)">
+        <span>7. Usuarios y Roles (RBAC)</span>
+        <span class="nav-badge" style="background:#7c3aed">Admin</span>
       </button>
     </nav>
 
@@ -455,8 +739,11 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
         <button class="btn btn-success" onclick="descubrirRedRealAhora()" id="btn-scan-real">
           📡 Descubrir Red Real Ahora (1-254)
         </button>
-        <button class="btn btn-outline" onclick="abrirModalNuevaIncidencia()">
-          + Registrar Incidencia
+        <button class="btn btn-primary" onclick="abrirModalNuevaIncidencia()">
+          + Reportar Incidencia
+        </button>
+        <button class="btn btn-danger" onclick="cerrarSesion()" title="Cambiar de Usuario / Rol">
+          🚪 Cerrar Sesión
         </button>
       </div>
     </header>
@@ -468,7 +755,6 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
       <!-- ================================================================= -->
       <section id="tab-monitoreo" class="tab-panel active">
 
-        <!-- BANNER DE TELEMETRÍA FÍSICA REAL DE LA ESTACIÓN LOCAL -->
         <div class="hw-banner" id="hw-banner-box">
           <div class="hw-item">
             <div class="hw-title">🖥️ Esta Estación (Monitor Local)</div>
@@ -519,9 +805,9 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
             <div class="kpi-sub" id="kpi-activos-sub">Pendientes o En Atención</div>
           </div>
           <div class="kpi-card purple">
-            <div class="kpi-label">Población Total Monitoreada</div>
-            <div class="kpi-val" id="kpi-disp">--</div>
-            <div class="kpi-sub" id="kpi-disp-sub">Red Real + 35 Equipos Tesis</div>
+            <div class="kpi-label">Sesión y Rol Activo</div>
+            <div class="kpi-val" id="kpi-rol-actual" style="font-size:17px;">ADMINISTRADOR</div>
+            <div class="kpi-sub" id="kpi-user-actual">Control de acceso RBAC</div>
           </div>
         </div>
 
@@ -541,9 +827,6 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
               </select>
             </div>
           </div>
-          <p style="margin:0 0 12px 0;font-size:12.5px;color:#334155;">
-            🟢 <strong>Monitoreo 100% Real Activo:</strong> Los equipos listados abajo con la etiqueta <code>EN VIVO - RED REAL</code> son los dispositivos físicos reales descubiertos ahora mismo en tu red local (tu PC, tu router, laptops, celulares y equipos conectados al mismo Wi-Fi/LAN). Si desconectas el Wi-Fi de cualquiera de ellos y presionas <em>"🔍 PING/ARP Real"</em> o <em>"📡 Descubrir Red Real Ahora"</em>, verás cómo el sistema detecta la caída real y genera la alerta e incidencia automáticamente.
-          </p>
           <div class="equipos-grid" id="grid-equipos"></div>
         </div>
       </section>
@@ -617,7 +900,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
         <div class="card">
           <div class="card-header">
             <h3>Bandeja de Alertas Tempranas y Notificaciones Automáticas (Dimensión 3 - Ítems 9 y 10)</h3>
-            <button class="btn btn-outline btn-sm" onclick="marcarTodasAlertasLeidas()">✔ Marcar Todas como Leídas</button>
+            <button class="btn btn-outline btn-sm" id="btn-ack-alertas" onclick="marcarTodasAlertasLeidas()">✔ Marcar Todas como Leídas</button>
           </div>
           <div class="table-wrap">
             <table>
@@ -688,7 +971,7 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
       </section>
 
       <!-- ================================================================= -->
-      <!-- TAB 5: EVALUACIÓN CIENTÍFICA DE LA TESIS (O1 - X - O2 Y ALFA)     -->
+      <!-- TAB 5: EVALUACIÓN CIENTÍFFICA DE LA TESIS (O1 - X - O2 Y ALFA)     -->
       <!-- ================================================================= -->
       <section id="tab-estadistica" class="tab-panel">
         <div class="kpi-row">
@@ -808,6 +1091,122 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
         </div>
       </section>
 
+      <!-- ================================================================= -->
+      <!-- TAB 7: GESTIÓN DE USUARIOS Y ROLES (RBAC: ADMIN, SUB-ADMIN, USER) -->
+      <!-- ================================================================= -->
+      <section id="tab-usuarios" class="tab-panel">
+        <div class="card">
+          <div class="card-header">
+            <h3>Administración de Usuarios y Control de Acceso Basado en Roles (Administrador, Sub-Administrador y Usuario)</h3>
+            <button class="btn btn-primary btn-sm" onclick="abrirModalNuevoUsuario()">+ Crear Nueva Cuenta de Usuario</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Usuario (Login)</th>
+                  <th>Contraseña Demo</th>
+                  <th>Nombres y Apellidos</th>
+                  <th>Rol del Sistema (RBAC)</th>
+                  <th>Área Institucional</th>
+                  <th>Cargo</th>
+                  <th>Estado</th>
+                  <th>Último Acceso</th>
+                  <th>Cambiar Rol / Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-usuarios-sistema-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Bitácora de Auditoría de Inicios de Sesión y Seguridad (Ley N.° 29733)</h3>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Fecha / Hora</th>
+                  <th>Usuario</th>
+                  <th>Nombres y Apellidos</th>
+                  <th>Rol</th>
+                  <th>Evento / Acción Registrada</th>
+                  <th>IP Origen</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-auditoria-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- MODAL CREAR NUEVO USUARIO DEL SISTEMA -->
+  <div class="modal-backdrop" id="modal-nuevo-usuario">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Crear Nueva Cuenta de Usuario (RBAC)</h3>
+        <button class="btn btn-outline btn-sm" onclick="cerrarModal('modal-nuevo-usuario')">✕ Cerrar</button>
+      </div>
+      <div style="display:grid;gap:11px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Nombre de Usuario (Login):</label>
+            <input type="text" id="new-usr-username" style="width:100%;" placeholder="Ej. jperez">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Contraseña:</label>
+            <input type="text" id="new-usr-password" style="width:100%;" value="user2026">
+          </div>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Nombres y Apellidos Completos:</label>
+          <input type="text" id="new-usr-nombres" style="width:100%;" placeholder="Ej. Lic. Juan Carlos Pérez">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Rol en el Sistema (3 Niveles):</label>
+            <select id="new-usr-rol" style="width:100%;font-weight:700;">
+              <option value="ADMINISTRADOR">👑 ADMINISTRADOR (Control Total)</option>
+              <option value="SUB_ADMINISTRADOR">🛠️ SUB_ADMINISTRADOR (Soporte TI / Supervisión)</option>
+              <option value="USUARIO" selected>👤 USUARIO (Colaborador Institucional)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Área Institucional:</label>
+            <select id="new-usr-area" style="width:100%;">
+              <option value="Oficina de SIAGIE">Oficina de SIAGIE</option>
+              <option value="Dirección General">Dirección General</option>
+              <option value="Subdirección Académica">Subdirección Académica</option>
+              <option value="Secretaría General y Mesa de Partes">Secretaría General y Mesa de Partes</option>
+              <option value="Administración y Logística">Administración y Logística</option>
+              <option value="Laboratorio de Cómputo 01">Laboratorio de Cómputo 01</option>
+              <option value="Laboratorio de Cómputo 02">Laboratorio de Cómputo 02</option>
+              <option value="Unidad de Soporte Técnico TI">Unidad de Soporte Técnico TI</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Cargo Institucional:</label>
+            <input type="text" id="new-usr-cargo" style="width:100%;" value="Especialista Administrativo">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Correo Institucional:</label>
+            <input type="text" id="new-usr-correo" style="width:100%;" value="colaborador@educacionpiura.gob.pe">
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
+          <button class="btn btn-outline" onclick="cerrarModal('modal-nuevo-usuario')">Cancelar</button>
+          <button class="btn btn-primary" onclick="guardarNuevoUsuarioSistema()">💾 Crear Cuenta</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -873,7 +1272,7 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
         </div>
         <div>
           <label style="font-size:12px;font-weight:700;display:block;margin-bottom:4px;">Descripción Técnica del Evento:</label>
-          <textarea id="new-inc-desc" rows="3" style="width:100%;" placeholder="Describa el síntoma o resultado del diagnóstico ICMP/ARP..."></textarea>
+          <textarea id="new-inc-desc" rows="3" style="width:100%;" placeholder="Describa el síntoma o problema presentado en su equipo..."></textarea>
         </div>
         <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:6px;">
           <button class="btn btn-outline" onclick="cerrarModal('modal-nueva-inc')">Cancelar</button>
@@ -888,6 +1287,7 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
 <script>
   let EQUIPOS_CACHE = [];
   let TECNICOS_CACHE = [];
+  let USUARIO_ACTUAL = null;
 
   function mostrarToast(msg, critico = false) {
     const box = document.getElementById('toast-box');
@@ -896,19 +1296,6 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
     el.innerHTML = msg;
     box.appendChild(el);
     setTimeout(() => { el.remove(); }, 5000);
-  }
-
-  function switchTab(tabId, btnEl) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    if (btnEl) btnEl.classList.add('active');
-
-    if (tabId === 'tab-incidencias') cargarIncidencias();
-    if (tabId === 'tab-alertas') cargarAlertas();
-    if (tabId === 'tab-consola') cargarLogsMonitoreo();
-    if (tabId === 'tab-estadistica') cargarEstadisticaTesis();
-    if (tabId === 'tab-reportes') cargarTecnicos();
   }
 
   async function apiGet(path) {
@@ -923,6 +1310,100 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
       body: JSON.stringify(data)
     });
     return await res.json();
+  }
+
+  // =========================================================================
+  // AUTENTICACIÓN Y CONTROL DE ROLES (ADMINISTRADOR, SUB_ADMINISTRADOR, USUARIO)
+  // =========================================================================
+
+  function autocompletarLogin(user, pass) {
+    document.getElementById('login-username').value = user;
+    document.getElementById('login-password').value = pass;
+    document.getElementById('login-error-box').style.display = 'none';
+  }
+
+  async function ejecutarLogin(e) {
+    if (e) e.preventDefault();
+    const username = document.getElementById('login-username').value.trim();
+    const password = document.getElementById('login-password').value.trim();
+    const errBox = document.getElementById('login-error-box');
+    errBox.style.display = 'none';
+
+    const res = await apiPost('/api/login', { username, password });
+    if (!res.ok) {
+      errBox.textContent = res.error || 'Usuario o contraseña incorrectos.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    USUARIO_ACTUAL = res.usuario;
+    sessionStorage.setItem('sigif_user', JSON.stringify(USUARIO_ACTUAL));
+    aplicarPermisosRolUI();
+    document.getElementById('login-overlay').classList.add('hidden');
+    mostrarToast(
+      `🔐 <strong>Bienvenido(a), ${USUARIO_ACTUAL.nombres_apellidos}</strong><br>` +
+      `Rol Activo: <strong>${USUARIO_ACTUAL.permisos.etiqueta_rol}</strong> (${USUARIO_ACTUAL.area})`
+    );
+    await cargarDashboardKPIs();
+    await cargarEquipos();
+  }
+
+  async function cerrarSesion() {
+    if (USUARIO_ACTUAL) {
+      await apiPost('/api/logout', { username: USUARIO_ACTUAL.username });
+    }
+    USUARIO_ACTUAL = null;
+    sessionStorage.removeItem('sigif_user');
+    document.getElementById('login-overlay').classList.remove('hidden');
+    mostrarToast('🚪 Sesión cerrada correctamente.');
+  }
+
+  function aplicarPermisosRolUI() {
+    if (!USUARIO_ACTUAL) return;
+    const p = USUARIO_ACTUAL.permisos;
+    const rol = USUARIO_ACTUAL.rol;
+
+    // Actualizar tarjeta de perfil en el Sidebar y KPI
+    const sbRole = document.getElementById('sb-user-role');
+    sbRole.textContent = rol.replace('_', '-');
+    sbRole.className = `user-role-tag role-${rol}`;
+    document.getElementById('sb-user-name').textContent = USUARIO_ACTUAL.nombres_apellidos;
+    document.getElementById('sb-user-area').textContent = `${USUARIO_ACTUAL.area} (${USUARIO_ACTUAL.username})`;
+
+    document.getElementById('kpi-rol-actual').textContent = rol.replace('_', '-');
+    document.getElementById('kpi-user-actual').textContent = USUARIO_ACTUAL.nombres_apellidos;
+
+    // Mostrar/ocultar pestañas según permisos del rol
+    const setNavVisible = (id, visible) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (visible) el.classList.remove('hidden-by-role');
+      else el.classList.add('hidden-by-role');
+    };
+
+    setNavVisible('nav-tab-consola', p.puede_usar_consola_bajo_nivel);
+    setNavVisible('nav-tab-estadistica', p.puede_ver_estadistica_tesis);
+    setNavVisible('nav-tab-usuarios', p.puede_administrar_usuarios);
+
+    // Botón de escaneo de red completa en topbar
+    document.getElementById('btn-scan-real').style.display = p.puede_escanear_red ? 'inline-flex' : 'none';
+
+    // Si estaba en una pestaña ahora oculta, volver a tab-monitoreo
+    switchTab('tab-monitoreo', document.getElementById('nav-tab-monitoreo'));
+  }
+
+  function switchTab(tabId, btnEl) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    if (btnEl) btnEl.classList.add('active');
+
+    if (tabId === 'tab-incidencias') cargarIncidencias();
+    if (tabId === 'tab-alertas') cargarAlertas();
+    if (tabId === 'tab-consola') cargarLogsMonitoreo();
+    if (tabId === 'tab-estadistica') cargarEstadisticaTesis();
+    if (tabId === 'tab-reportes') cargarTecnicos();
+    if (tabId === 'tab-usuarios') cargarUsuariosSistema();
   }
 
   async function cargarDashboardKPIs() {
@@ -960,8 +1441,6 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
     const activos = inc.pendientes + inc.en_atencion;
     document.getElementById('kpi-activos').textContent = activos;
     document.getElementById('kpi-activos-sub').textContent = `${inc.pendientes} Pendientes • ${inc.en_atencion} En Atención • ${inc.resueltas} Resueltos`;
-    document.getElementById('kpi-disp').textContent = `${red.operativos} / ${red.total_equipos}`;
-    document.getElementById('kpi-disp-sub').textContent = `Disponibilidad Global: ${red.disponibilidad_pct}%`;
 
     document.getElementById('nav-real-count').textContent = red.dispositivos_reales_total;
     document.getElementById('nav-inc-count').textContent = activos;
@@ -974,11 +1453,8 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
     const list = await apiGet(`/api/equipos?area=${encodeURIComponent(area)}&estado=${encodeURIComponent(estado)}`);
     EQUIPOS_CACHE = list;
 
+    const puedeSimular = USUARIO_ACTUAL ? USUARIO_ACTUAL.permisos.puede_simular_fallas : true;
     const grid = document.getElementById('grid-equipos');
-    if (list.length === 0) {
-      grid.innerHTML = `<div class="card">No hay equipos para el filtro seleccionado. Presione <strong>"📡 Descubrir Red Real Ahora (1-254)"</strong>.</div>`;
-      return;
-    }
 
     grid.innerHTML = list.map(eq => {
       const esReal = eq.es_dispositivo_real === 1;
@@ -1006,12 +1482,16 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
           <span>📉 Loss: ${eq.perdida_paquetes_pct}%</span>
         </div>
         <div class="eq-actions">
-          <button class="btn btn-primary btn-sm" onclick="diagnosticarEquipo(${eq.id})">🔍 PING / ARP Real en Vivo</button>
-          ${eq.estado_actual === 'OPERATIVO' ? `
-            <button class="btn btn-danger btn-sm" onclick="simularFallaEquipo(${eq.id}, 'FORZAR_CAIDA')">⚡ Probar Alerta Caída</button>
-            <button class="btn btn-warning btn-sm" onclick="simularFallaEquipo(${eq.id}, 'FORZAR_LENTITUD')">🐢 Probar Lentitud</button>
-          ` : `
-            <button class="btn btn-success btn-sm" onclick="simularFallaEquipo(${eq.id}, 'NORMAL')">✔ Re-sondear / Restaurar</button>
+          <button class="btn btn-primary btn-sm" onclick="diagnosticarEquipo(${eq.id})">🔍 PING / ARP Real</button>
+          ${puedeSimular ? (
+            eq.estado_actual === 'OPERATIVO' ? `
+              <button class="btn btn-danger btn-sm" onclick="simularFallaEquipo(${eq.id}, 'FORZAR_CAIDA')">⚡ Probar Caída</button>
+              <button class="btn btn-warning btn-sm" onclick="simularFallaEquipo(${eq.id}, 'FORZAR_LENTITUD')">🐢 Lentitud</button>
+            ` : `
+              <button class="btn btn-success btn-sm" onclick="simularFallaEquipo(${eq.id}, 'NORMAL')">✔ Restaurar</button>
+            `
+          ) : `
+            <button class="btn btn-outline btn-sm" onclick="abrirModalNuevaIncidencia()">📝 Reportar Falla</button>
           `}
         </div>
       </div>
@@ -1093,6 +1573,8 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
     const sev = document.getElementById('filtro-sev-inc').value;
     const list = await apiGet(`/api/incidencias?fase=${fase}&estado=${encodeURIComponent(estado)}&severidad=${encodeURIComponent(sev)}`);
     const tbody = document.getElementById('tabla-incidencias-body');
+    const puedeAtender = USUARIO_ACTUAL ? USUARIO_ACTUAL.permisos.puede_atender_resolver_incidencias : true;
+
     tbody.innerHTML = list.map(inc => {
       const stClass = inc.estado_atencion.replace(' ', '').replace('ó', 'o');
       const sevClass = inc.severidad.replace('í', 'i');
@@ -1111,7 +1593,9 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
           <td><span class="badge badge-${stClass}">${inc.estado_atencion}</span></td>
           <td>${inc.tecnico_nombre || '-'}</td>
           <td>
-            <button class="btn btn-primary btn-sm" onclick="verDetalleIncidencia(${inc.id})">Gestionar / Trazabilidad</button>
+            <button class="btn btn-primary btn-sm" onclick="verDetalleIncidencia(${inc.id})">
+              ${puedeAtender ? 'Gestionar / Trazabilidad' : 'Ver Seguimiento'}
+            </button>
           </td>
         </tr>
       `;
@@ -1123,6 +1607,7 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
     if (TECNICOS_CACHE.length === 0) {
       TECNICOS_CACHE = await apiGet('/api/tecnicos');
     }
+    const puedeAtender = USUARIO_ACTUAL ? USUARIO_ACTUAL.permisos.puede_atender_resolver_incidencias : true;
     const tecOptions = TECNICOS_CACHE.map(t =>
       `<option value="${t.id}" ${t.id === inc.tecnico_id ? 'selected' : ''}>${t.codigo_tecnico} - ${t.nombres_apellidos} (${t.especialidad})</option>`
     ).join('');
@@ -1154,33 +1639,39 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
         <div style="background:#fff;border:1px solid #e2e8f0;padding:8px;border-radius:6px;margin-top:4px;">${inc.descripcion_tecnica}</div>
       </div>
 
-      <h4 style="margin:0 0 8px 0;color:#0f2547;font-size:13.5px;">Actualizar Estado y Registrar Solución Técnica (ITIL v4)</h4>
-      <div style="display:grid;gap:10px;background:#f1f5f9;padding:12px;border-radius:8px;margin-bottom:16px;">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div>
-            <label style="font-size:11.5px;font-weight:700;">Nuevo Estado de Atención:</label>
-            <select id="upd-inc-estado" style="width:100%;">
-              <option value="Pendiente" ${inc.estado_atencion === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
-              <option value="En Atención" ${inc.estado_atencion === 'En Atención' ? 'selected' : ''}>En Atención</option>
-              <option value="Resuelto" ${inc.estado_atencion === 'Resuelto' ? 'selected' : ''}>Resuelto (Restaurar Equipo)</option>
-              <option value="Escalado" ${inc.estado_atencion === 'Escalado' ? 'selected' : ''}>Escalado</option>
-            </select>
+      ${puedeAtender ? `
+        <h4 style="margin:0 0 8px 0;color:#0f2547;font-size:13.5px;">Actualizar Estado y Registrar Solución Técnica (Permiso: Admin / Sub-Admin)</h4>
+        <div style="display:grid;gap:10px;background:#f1f5f9;padding:12px;border-radius:8px;margin-bottom:16px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:11.5px;font-weight:700;">Nuevo Estado de Atención:</label>
+              <select id="upd-inc-estado" style="width:100%;">
+                <option value="Pendiente" ${inc.estado_atencion === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                <option value="En Atención" ${inc.estado_atencion === 'En Atención' ? 'selected' : ''}>En Atención</option>
+                <option value="Resuelto" ${inc.estado_atencion === 'Resuelto' ? 'selected' : ''}>Resuelto (Restaurar Equipo)</option>
+                <option value="Escalado" ${inc.estado_atencion === 'Escalado' ? 'selected' : ''}>Escalado</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11.5px;font-weight:700;">Técnico Responsable:</label>
+              <select id="upd-inc-tec" style="width:100%;">${tecOptions}</select>
+            </div>
           </div>
           <div>
-            <label style="font-size:11.5px;font-weight:700;">Técnico Responsable:</label>
-            <select id="upd-inc-tec" style="width:100%;">${tecOptions}</select>
+            <label style="font-size:11.5px;font-weight:700;">Acción / Solución Técnica Aplicada:</label>
+            <textarea id="upd-inc-sol" rows="2" style="width:100%;" placeholder="Ingrese el procedimiento técnico o solución aplicada...">${inc.solucion_aplicada || ''}</textarea>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="btn btn-warning btn-sm" onclick="cambiarEstadoIncidencia(${inc.id}, 'En Atención')">🔧 Pasar a En Atención</button>
+            <button class="btn btn-success btn-sm" onclick="cambiarEstadoIncidencia(${inc.id}, 'Resuelto')">✅ Marcar como Resuelto y Restaurar Equipo</button>
+            <button class="btn btn-primary btn-sm" onclick="cambiarEstadoIncidencia(${inc.id}, null)">💾 Guardar Cambios</button>
           </div>
         </div>
-        <div>
-          <label style="font-size:11.5px;font-weight:700;">Acción / Solución Técnica Aplicada:</label>
-          <textarea id="upd-inc-sol" rows="2" style="width:100%;" placeholder="Ingrese el procedimiento técnico o solución aplicada...">${inc.solucion_aplicada || ''}</textarea>
+      ` : `
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:10px 12px;border-radius:8px;margin-bottom:14px;font-size:12px;color:#166534;">
+          ℹ️ <strong>Vista de Usuario Institucional:</strong> Su ticket está siendo gestionado por <strong>${inc.tecnico_nombre || 'Soporte Técnico TI'}</strong>. Solución registrada: <em>${inc.solucion_aplicada || 'En proceso de atención técnica'}</em>.
         </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button class="btn btn-warning btn-sm" onclick="cambiarEstadoIncidencia(${inc.id}, 'En Atención')">🔧 Pasar a En Atención</button>
-          <button class="btn btn-success btn-sm" onclick="cambiarEstadoIncidencia(${inc.id}, 'Resuelto')">✅ Marcar como Resuelto y Restaurar Equipo</button>
-          <button class="btn btn-primary btn-sm" onclick="cambiarEstadoIncidencia(${inc.id}, null)">💾 Guardar Cambios</button>
-        </div>
-      </div>
+      `}
 
       <h4 style="margin:0 0 8px 0;color:#0f2547;font-size:13.5px;">Historial de Trazabilidad del Caso</h4>
       <div>${histHtml}</div>
@@ -1227,7 +1718,8 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
     const tipo = document.getElementById('new-inc-tipo').value;
     const sev = document.getElementById('new-inc-sev').value;
     const tecId = parseInt(document.getElementById('new-inc-tecnico').value, 10);
-    const desc = document.getElementById('new-inc-desc').value.trim() || `Incidencia reportada y verificada por monitoreo ICMP/ARP (${tipo}).`;
+    const autor = USUARIO_ACTUAL ? `${USUARIO_ACTUAL.nombres_apellidos} (${USUARIO_ACTUAL.rol})` : 'Usuario';
+    const desc = (document.getElementById('new-inc-desc').value.trim() || `Incidencia reportada en el sistema (${tipo}).`) + ` [Reportado por: ${autor}]`;
 
     const inc = await apiPost('/api/crear_incidencia', {
       equipo_id: eqId,
@@ -1407,20 +1899,109 @@ Presione "Ver Tabla ARP Real" o ingrese cualquier IP de su red para ejecutar el 
     `).join('');
   }
 
+  // =========================================================================
+  // MÓDULO 7: GESTIÓN DE USUARIOS, ROLES (RBAC) Y AUDITORÍA
+  // =========================================================================
+
+  async function cargarUsuariosSistema() {
+    const users = await apiGet('/api/usuarios_sistema');
+    const aud = await apiGet('/api/auditoria_accesos');
+
+    document.getElementById('tabla-usuarios-sistema-body').innerHTML = users.map(u => `
+      <tr>
+        <td>#${u.id}</td>
+        <td><strong><code>${u.username}</code></strong></td>
+        <td><code>${u.password_hint}</code></td>
+        <td><strong>${u.nombres_apellidos}</strong></td>
+        <td><span class="badge badge-${u.rol}">${u.rol.replace('_', '-')}</span></td>
+        <td>${u.area}</td>
+        <td>${u.cargo}</td>
+        <td><span class="badge badge-${u.estado}">${u.estado}</span></td>
+        <td>${u.ultimo_acceso || '-'}</td>
+        <td>
+          <select onchange="cambiarRolUsuario(${u.id}, this.value, '${u.estado}')" style="padding:3px 6px;font-size:11.5px;">
+            <option value="ADMINISTRADOR" ${u.rol === 'ADMINISTRADOR' ? 'selected' : ''}>ADMINISTRADOR</option>
+            <option value="SUB_ADMINISTRADOR" ${u.rol === 'SUB_ADMINISTRADOR' ? 'selected' : ''}>SUB_ADMINISTRADOR</option>
+            <option value="USUARIO" ${u.rol === 'USUARIO' ? 'selected' : ''}>USUARIO</option>
+          </select>
+        </td>
+      </tr>
+    `).join('');
+
+    document.getElementById('tabla-auditoria-body').innerHTML = aud.map(a => `
+      <tr>
+        <td>#${a.id}</td>
+        <td>${a.fecha_hora}</td>
+        <td><code>${a.username}</code></td>
+        <td>${a.nombres_apellidos}</td>
+        <td><span class="badge badge-${a.rol}">${a.rol.replace('_', '-')}</span></td>
+        <td>${a.accion}</td>
+        <td><code>${a.ip_origen}</code></td>
+      </tr>
+    `).join('');
+  }
+
+  function abrirModalNuevoUsuario() {
+    document.getElementById('new-usr-username').value = '';
+    document.getElementById('new-usr-nombres').value = '';
+    document.getElementById('modal-nuevo-usuario').classList.add('open');
+  }
+
+  async function guardarNuevoUsuarioSistema() {
+    const username = document.getElementById('new-usr-username').value.trim();
+    const password = document.getElementById('new-usr-password').value.trim() || 'user2026';
+    const nombres = document.getElementById('new-usr-nombres').value.trim();
+    const rol = document.getElementById('new-usr-rol').value;
+    const area = document.getElementById('new-usr-area').value;
+    const cargo = document.getElementById('new-usr-cargo').value.trim();
+    const correo = document.getElementById('new-usr-correo').value.trim();
+
+    if (!username || !nombres) {
+      mostrarToast('⚠️ Complete el nombre de usuario y los nombres y apellidos.', true);
+      return;
+    }
+
+    const res = await apiPost('/api/crear_usuario_sistema', {
+      username, password, nombres_apellidos: nombres, rol, area, cargo, correo
+    });
+    if (res.error) {
+      mostrarToast('⚠️ Error: ' + res.error, true);
+      return;
+    }
+    mostrarToast(`✅ Cuenta <strong>${username}</strong> creada con rol <strong>${rol}</strong>.`);
+    cerrarModal('modal-nuevo-usuario');
+    await cargarUsuariosSistema();
+  }
+
+  async function cambiarRolUsuario(userId, nuevoRol, estadoActual) {
+    await apiPost('/api/actualizar_usuario_sistema', {
+      user_id: userId,
+      rol: nuevoRol,
+      estado: estadoActual
+    });
+    mostrarToast(`✅ Rol actualizado a <strong>${nuevoRol}</strong>.`);
+    await cargarUsuariosSistema();
+  }
+
   function exportarArchivo(tipo) {
     window.open(`/api/exportar?tipo=${encodeURIComponent(tipo)}`, '_blank');
     mostrarToast('📥 Reporte generado y exportado correctamente.');
   }
 
   window.addEventListener('DOMContentLoaded', async () => {
+    const saved = sessionStorage.getItem('sigif_user');
+    if (saved) {
+      try {
+        USUARIO_ACTUAL = JSON.parse(saved);
+        aplicarPermisosRolUI();
+        document.getElementById('login-overlay').classList.add('hidden');
+      } catch (e) {}
+    }
     await cargarDashboardKPIs();
     await cargarEquipos();
-    // Si aún no hay dispositivos reales cargados, lanzar descubrimiento automático al abrir
-    const kpis = await apiGet('/api/kpis');
-    if (kpis.resumen_red.dispositivos_reales_total === 0) {
-      await descubrirRedRealAhora();
-    }
+
     setInterval(async () => {
+      if (!USUARIO_ACTUAL) return;
       await cargarDashboardKPIs();
       const activeTab = document.querySelector('.tab-panel.active');
       if (activeTab && activeTab.id === 'tab-monitoreo') {
