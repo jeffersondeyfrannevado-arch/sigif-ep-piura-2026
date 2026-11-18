@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Reporte Ejecutivo - SIGIF-EP Piura 2026</title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; margin: 28px; background: #f8fafc; }
+  .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 22px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+  .header { border-left: 6px solid #1e3a8a; padding-left: 16px; }
+  h1 { margin: 0 0 6px 0; color: #1e3a8a; font-size: 22px; }
+  h2 { color: #0f172a; font-size: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; margin-top: 0; }
+  .meta { font-size: 13px; color: #475569; line-height: 1.5; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 16px 0; }
+  .kpi { background: #f1f5f9; border-radius: 8px; padding: 14px; text-align: center; border-top: 4px solid #2563eb; }
+  .kpi .val { font-size: 24px; font-weight: 700; color: #0f172a; }
+  .kpi .lbl { font-size: 12px; color: #64748b; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+  th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }
+  th { background: #1e3a8a; color: #fff; }
+  tr:nth-child(even) { background: #f8fafc; }
+  .print-btn { background: #1e3a8a; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; float: right; }
+  @media print { .print-btn { display: none; } body { background: #fff; margin: 10px; } }
+</style>
+</head>
+<body>
+  <button class="print-btn" onclick="window.print()">Imprimir / Guardar como PDF</button>
+  <div class="card header">
+    <h1>Aplicación para la detección y gestión de incidencias y fallas en equipos informáticos de una entidad educativa pública Piura 2026</h1>
+    <div class="meta">
+      <strong>Sistema:</strong> SIGIF-EP Piura 2026 — Sistema Inteligente de Monitoreo ICMP/ARP, Detección Automática y Gestión de Incidencias TI (ITIL v4 / NIST SP 800-61)<br>
+      <strong>Autores:</strong> Toro Agurto, Mario Andre (ORCID: 0000-0003-4364-647X), Nevado Fiestas, Jefferson Deyfrank (ORCID: 0000-0001-5290-3947) | <strong>Asesor:</strong> Dr. Ancajima Miñán, Víctor Ángel (ORCID: 0000-0002-3122-4512)<br>
+      <strong>Entidad:</strong> Entidad Educativa Pública - Piura (Oficina SIAGIE y Áreas Administrativas/Educativas) | <strong>Fecha de Emisión:</strong> 18/11/2026 08:56:25<br>
+      <strong>Marco Legal y Ético:</strong> Ley N.° 29733 - Ley de Protección de Datos Personales (Perú) | ODS 8: Trabajo decente y crecimiento económico
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1. Resumen Operativo de Monitoreo en Tiempo Real (N = 35 Equipos / 10 Técnicos)</h2>
+    <div class="kpi-grid">
+      <div class="kpi"><div class="val">88.6%</div><div class="lbl">Disponibilidad de Red (31/35)</div></div>
+      <div class="kpi"><div class="val">5.07 s</div><div class="lbl">Tiempo Promedio Detección ICMP/ARP</div></div>
+      <div class="kpi"><div class="val">6.96 min</div><div class="lbl">Tiempo Promedio de Respuesta TI</div></div>
+      <div class="kpi"><div class="val">83.3%</div><div class="lbl">Tasa de Resolución en Posprueba O2</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Evaluación Preexperimental (G: O1 — X — O2) y Confiabilidad del Instrumento</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Indicador Evaluado</th>
+          <th>Preprueba (O1 - Sin Aplicación)</th>
+          <th>Posprueba (O2 - Con Aplicación Python)</th>
+          <th>Mejora / Reducción Lograda</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Tiempo promedio de detección de fallas</td>
+          <td>34.39 min (Reporte manual)</td>
+          <td>5.07 seg (0.084 min)</td>
+          <td><strong>-99.8%</strong></td>
+        </tr>
+        <tr>
+          <td>Tiempo promedio de respuesta de soporte técnico</td>
+          <td>42.54 min</td>
+          <td>6.96 min</td>
+          <td><strong>-83.6%</strong></td>
+        </tr>
+        <tr>
+          <td>Tiempo promedio de solución de incidencias</td>
+          <td>104.83 min</td>
+          <td>19.44 min</td>
+          <td><strong>-81.5%</strong></td>
+        </tr>
+        <tr>
+          <td>Cobertura de emisión de alertas tempranas</td>
+          <td>0.0%</td>
+          <td>100.0%</td>
+          <td><strong>+100.0% Automatizado</strong></td>
+        </tr>
+        <tr>
+          <td>Percepción de Usuarios y Soporte (Escala Likert 16 ítems, N=45)</td>
+          <td>Media: 34.38 (DE: 10.08)</td>
+          <td>Media: 71.47 (DE: 6.04)</td>
+          <td><strong>t = 22.438, gl = 44, p < 0.001 (Altamente significativo)</strong></td>
+        </tr>
+        <tr>
+          <td>Confiabilidad Alfa de Cronbach (16 ítems, N=45)</td>
+          <td colspan="2"><strong>Alfa de Cronbach = 0.9468</strong> (Excelente confiabilidad (Consistencia interna muy alta))</td>
+          <td><strong>V de Aiken = 1.00 (3 Expertos UCV)</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>3. Registro de Incidencias Detectadas y Gestionadas (Posprueba O2)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ticket</th><th>Equipo</th><th>Área</th><th>Tipo de Falla</th><th>Severidad</th>
+          <th>Fecha/Hora</th><th>Detección</th><th>Respuesta</th><th>Solución</th><th>Estado</th><th>Técnico Responsable</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+            <tr>
+                <td><strong>INC-2026-0055</strong></td>
+                <td>PC-SIAGIE-01</td>
+                <td>Oficina de SIAGIE</td>
+                <td>Equipo Inoperativo / Sin Respuesta en Red (Host Down)</td>
+                <td>Crítica</td>
+                <td>2026-11-18 08:56:25</td>
+                <td>2.21 s</td>
+                <td>2.65 min</td>
+                <td>1.2 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Ing. Mario Andre Toro Agurto</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0054</strong></td>
+                <td>PC-ADM-01</td>
+                <td>Administración y Logística</td>
+                <td>Lentitud Operativa / Alta Latencia de Red</td>
+                <td>Alta</td>
+                <td>2026-11-18 08:56:23</td>
+                <td>1.12 s</td>
+                <td>- min</td>
+                <td>- min</td>
+                <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Pendiente</span></td>
+                <td>Téc. Diana Carolina Távara Arrunátegui</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0053</strong></td>
+                <td>PC-LAB2-04</td>
+                <td>Laboratorio de Cómputo 02</td>
+                <td>Error Recurrente de Estación de Trabajo</td>
+                <td>Crítica</td>
+                <td>2026-11-15 12:23:22</td>
+                <td>6.47 s</td>
+                <td>- min</td>
+                <td>- min</td>
+                <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Pendiente</span></td>
+                <td>Téc. Ana Lucía Merino Chiroque</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0052</strong></td>
+                <td>PC-LAB1-03</td>
+                <td>Laboratorio de Cómputo 01</td>
+                <td>Error de Servicio Tecnológico / Sistema Institucional (SIAGIE)</td>
+                <td>Crítica</td>
+                <td>2026-11-14 11:12:22</td>
+                <td>6.28 s</td>
+                <td>- min</td>
+                <td>- min</td>
+                <td><span style="background:#dc2626;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Pendiente</span></td>
+                <td>Téc. Jorge Eduardo Vílchez Palacios</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0051</strong></td>
+                <td>PC-SUBDIR-01</td>
+                <td>Subdirección Académica</td>
+                <td>Falla de Hardware / Periféricos Críticos</td>
+                <td>Alta</td>
+                <td>2026-11-14 10:40:22</td>
+                <td>7.35 s</td>
+                <td>3.7 min</td>
+                <td>- min</td>
+                <td><span style="background:#d97706;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">En Atención</span></td>
+                <td>Téc. Claudia Paola Seminario Zapata</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0050</strong></td>
+                <td>PC-SIAGIE-03</td>
+                <td>Oficina de SIAGIE</td>
+                <td>Conflicto o Anomalía de Resolución Física ARP</td>
+                <td>Alta</td>
+                <td>2026-11-14 09:14:22</td>
+                <td>4.05 s</td>
+                <td>6.2 min</td>
+                <td>- min</td>
+                <td><span style="background:#d97706;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">En Atención</span></td>
+                <td>Téc. Luis Fernando Ipanaqué Silva</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0049</strong></td>
+                <td>PC-TOE-03</td>
+                <td>Coordinación de Tutoría (TOE)</td>
+                <td>Lentitud Operativa / Alta Latencia de Red</td>
+                <td>Crítica</td>
+                <td>2026-11-13 16:35:22</td>
+                <td>2.39 s</td>
+                <td>3.8 min</td>
+                <td>27.2 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Rosa María Valladolid Bereche</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0048</strong></td>
+                <td>PC-DOC-04</td>
+                <td>Sala de Docentes</td>
+                <td>Equipo Inoperativo / Sin Respuesta en Red (Host Down)</td>
+                <td>Crítica</td>
+                <td>2026-11-13 15:15:22</td>
+                <td>5.37 s</td>
+                <td>11.5 min</td>
+                <td>14.4 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Carlos Alberto Chunga Panta</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0047</strong></td>
+                <td>PC-DOC-01</td>
+                <td>Sala de Docentes</td>
+                <td>Falla de Conectividad / Pérdida de Enlace ICMP</td>
+                <td>Alta</td>
+                <td>2026-11-13 14:41:22</td>
+                <td>5.46 s</td>
+                <td>10.0 min</td>
+                <td>16.0 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Ing. Jefferson Deyfrank Nevado Fiestas</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0046</strong></td>
+                <td>PC-BIB-01</td>
+                <td>Biblioteca Institucional</td>
+                <td>Error Recurrente de Estación de Trabajo</td>
+                <td>Crítica</td>
+                <td>2026-11-12 13:40:22</td>
+                <td>3.25 s</td>
+                <td>8.0 min</td>
+                <td>23.6 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Ing. Mario Andre Toro Agurto</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0045</strong></td>
+                <td>PC-LAB2-03</td>
+                <td>Laboratorio de Cómputo 02</td>
+                <td>Error de Servicio Tecnológico / Sistema Institucional (SIAGIE)</td>
+                <td>Media</td>
+                <td>2026-11-12 12:25:22</td>
+                <td>5.62 s</td>
+                <td>6.7 min</td>
+                <td>16.2 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Diana Carolina Távara Arrunátegui</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0044</strong></td>
+                <td>PC-LAB1-05</td>
+                <td>Laboratorio de Cómputo 01</td>
+                <td>Falla de Hardware / Periféricos Críticos</td>
+                <td>Alta</td>
+                <td>2026-11-12 11:00:22</td>
+                <td>2.63 s</td>
+                <td>8.9 min</td>
+                <td>23.5 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Pedro Miguel Adanaqué Morales</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0043</strong></td>
+                <td>PC-LAB1-02</td>
+                <td>Laboratorio de Cómputo 01</td>
+                <td>Conflicto o Anomalía de Resolución Física ARP</td>
+                <td>Alta</td>
+                <td>2026-11-11 10:10:22</td>
+                <td>5.5 s</td>
+                <td>4.4 min</td>
+                <td>22.8 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Ana Lucía Merino Chiroque</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0042</strong></td>
+                <td>PC-ADM-03</td>
+                <td>Administración y Logística</td>
+                <td>Lentitud Operativa / Alta Latencia de Red</td>
+                <td>Media</td>
+                <td>2026-11-11 09:05:22</td>
+                <td>3.76 s</td>
+                <td>8.4 min</td>
+                <td>12.4 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Jorge Eduardo Vílchez Palacios</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0041</strong></td>
+                <td>PC-SEC-03</td>
+                <td>Secretaría General y Mesa de Partes</td>
+                <td>Equipo Inoperativo / Sin Respuesta en Red (Host Down)</td>
+                <td>Media</td>
+                <td>2026-11-11 16:01:22</td>
+                <td>6.65 s</td>
+                <td>3.7 min</td>
+                <td>24.2 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Claudia Paola Seminario Zapata</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0040</strong></td>
+                <td>PC-SUBDIR-03</td>
+                <td>Subdirección Académica</td>
+                <td>Falla de Conectividad / Pérdida de Enlace ICMP</td>
+                <td>Media</td>
+                <td>2026-11-10 15:30:22</td>
+                <td>6.3 s</td>
+                <td>6.7 min</td>
+                <td>28.6 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Luis Fernando Ipanaqué Silva</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0039</strong></td>
+                <td>PC-DIR-02</td>
+                <td>Dirección General</td>
+                <td>Error Recurrente de Estación de Trabajo</td>
+                <td>Media</td>
+                <td>2026-11-10 14:11:22</td>
+                <td>5.72 s</td>
+                <td>9.1 min</td>
+                <td>14.1 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Rosa María Valladolid Bereche</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0038</strong></td>
+                <td>PC-SIAGIE-02</td>
+                <td>Oficina de SIAGIE</td>
+                <td>Error de Servicio Tecnológico / Sistema Institucional (SIAGIE)</td>
+                <td>Crítica</td>
+                <td>2026-11-10 13:36:22</td>
+                <td>5.93 s</td>
+                <td>3.8 min</td>
+                <td>19.1 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Carlos Alberto Chunga Panta</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0037</strong></td>
+                <td>PC-TOE-02</td>
+                <td>Coordinación de Tutoría (TOE)</td>
+                <td>Falla de Hardware / Periféricos Críticos</td>
+                <td>Media</td>
+                <td>2026-11-09 12:41:22</td>
+                <td>5.5 s</td>
+                <td>10.6 min</td>
+                <td>17.5 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Ing. Jefferson Deyfrank Nevado Fiestas</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0036</strong></td>
+                <td>PC-DOC-03</td>
+                <td>Sala de Docentes</td>
+                <td>Conflicto o Anomalía de Resolución Física ARP</td>
+                <td>Alta</td>
+                <td>2026-11-09 11:24:22</td>
+                <td>8.17 s</td>
+                <td>5.5 min</td>
+                <td>17.4 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Ing. Mario Andre Toro Agurto</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0035</strong></td>
+                <td>PC-BIB-03</td>
+                <td>Biblioteca Institucional</td>
+                <td>Lentitud Operativa / Alta Latencia de Red</td>
+                <td>Media</td>
+                <td>2026-11-09 10:16:22</td>
+                <td>7.95 s</td>
+                <td>5.6 min</td>
+                <td>12.2 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Diana Carolina Távara Arrunátegui</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0034</strong></td>
+                <td>PC-LAB2-05</td>
+                <td>Laboratorio de Cómputo 02</td>
+                <td>Equipo Inoperativo / Sin Respuesta en Red (Host Down)</td>
+                <td>Alta</td>
+                <td>2026-11-08 09:09:22</td>
+                <td>6.06 s</td>
+                <td>6.1 min</td>
+                <td>22.3 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Pedro Miguel Adanaqué Morales</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0033</strong></td>
+                <td>PC-LAB2-02</td>
+                <td>Laboratorio de Cómputo 02</td>
+                <td>Falla de Conectividad / Pérdida de Enlace ICMP</td>
+                <td>Crítica</td>
+                <td>2026-11-08 16:04:22</td>
+                <td>8.1 s</td>
+                <td>9.2 min</td>
+                <td>25.3 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Ana Lucía Merino Chiroque</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0032</strong></td>
+                <td>PC-LAB1-04</td>
+                <td>Laboratorio de Cómputo 01</td>
+                <td>Error Recurrente de Estación de Trabajo</td>
+                <td>Media</td>
+                <td>2026-11-08 15:34:22</td>
+                <td>3.75 s</td>
+                <td>8.1 min</td>
+                <td>13.8 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Jorge Eduardo Vílchez Palacios</td>
+            </tr>
+            
+            <tr>
+                <td><strong>INC-2026-0031</strong></td>
+                <td>PC-LAB1-01</td>
+                <td>Laboratorio de Cómputo 01</td>
+                <td>Error de Servicio Tecnológico / Sistema Institucional (SIAGIE)</td>
+                <td>Alta</td>
+                <td>2026-11-07 14:11:22</td>
+                <td>2.52 s</td>
+                <td>8.1 min</td>
+                <td>21.9 min</td>
+                <td><span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;">Resuelto</span></td>
+                <td>Téc. Claudia Paola Seminario Zapata</td>
+            </tr>
+            
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

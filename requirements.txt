@@ -1,0 +1,2 @@
+# El sistema utiliza la librería estándar de Python 3.11+ (sqlite3, http.server, subprocess, socket, ctypes)
+# para máxima estabilidad y cero errores de compilación en Render y Vercel.

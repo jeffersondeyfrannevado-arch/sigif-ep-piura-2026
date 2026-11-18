@@ -1,0 +1,46 @@
+﻿ID_Participante,Rol,Area,ITEM_1,ITEM_2,ITEM_3,ITEM_4,ITEM_5,ITEM_6,ITEM_7,ITEM_8,ITEM_9,ITEM_10,ITEM_11,ITEM_12,ITEM_13,ITEM_14,ITEM_15,ITEM_16,PUNTAJE_POSPRUEBA_O2,PUNTAJE_PREPRUEBA_O1,DIFERENCIA_MEJORA
+USU-01,Usuario Administrativo/Institucional,Oficina de SIAGIE,4,4,4,5,4,5,4,4,4,5,5,4,4,4,4,5,69,35,34
+USU-02,Usuario Administrativo/Institucional,Dirección General,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,30,34
+USU-03,Usuario Administrativo/Institucional,Subdirección Académica,5,5,5,5,4,5,5,4,4,4,4,5,5,5,5,5,75,50,25
+USU-04,Usuario Administrativo/Institucional,Secretaría General y Mesa de Partes,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,33,47
+USU-05,Usuario Administrativo/Institucional,Administración y Logística,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,31,33
+USU-06,Usuario Administrativo/Institucional,Laboratorio de Cómputo 01,5,4,5,5,5,4,5,4,4,4,5,4,5,5,5,4,73,33,40
+USU-07,Usuario Administrativo/Institucional,Laboratorio de Cómputo 02,5,5,4,5,4,5,5,5,5,5,4,5,5,5,5,5,77,19,58
+USU-08,Usuario Administrativo/Institucional,Biblioteca Institucional,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,34,46
+USU-09,Usuario Administrativo/Institucional,Sala de Docentes,4,4,5,4,4,5,5,4,4,4,4,4,4,5,5,4,69,33,36
+USU-10,Usuario Administrativo/Institucional,Coordinación de Tutoría (TOE),5,5,4,4,5,4,5,4,4,5,5,5,5,4,5,5,74,34,40
+USU-11,Usuario Administrativo/Institucional,Oficina de SIAGIE,5,5,5,5,5,5,4,4,5,4,5,5,5,5,4,5,76,32,44
+USU-12,Usuario Administrativo/Institucional,Dirección General,4,4,4,4,5,4,4,4,5,4,4,4,4,5,4,5,68,30,38
+USU-13,Usuario Administrativo/Institucional,Subdirección Académica,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,49,15
+USU-14,Usuario Administrativo/Institucional,Secretaría General y Mesa de Partes,5,4,4,5,4,5,5,5,4,4,5,4,5,4,5,5,73,34,39
+USU-15,Usuario Administrativo/Institucional,Administración y Logística,4,5,5,5,5,5,4,5,5,5,5,5,4,5,5,5,77,31,46
+USU-16,Usuario Administrativo/Institucional,Laboratorio de Cómputo 01,4,4,4,5,5,4,4,5,4,4,4,4,4,4,4,5,68,34,34
+USU-17,Usuario Administrativo/Institucional,Laboratorio de Cómputo 02,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,52,12
+USU-18,Usuario Administrativo/Institucional,Biblioteca Institucional,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,34,30
+USU-19,Usuario Administrativo/Institucional,Sala de Docentes,4,4,4,5,5,4,4,5,4,4,5,5,4,5,5,4,71,52,19
+USU-20,Usuario Administrativo/Institucional,Coordinación de Tutoría (TOE),4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,33,31
+USU-21,Usuario Administrativo/Institucional,Oficina de SIAGIE,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,47,33
+USU-22,Usuario Administrativo/Institucional,Dirección General,5,5,5,5,5,5,5,5,4,5,5,5,5,4,5,5,78,18,60
+USU-23,Usuario Administrativo/Institucional,Subdirección Académica,5,4,5,5,5,5,4,5,4,4,4,5,5,4,5,5,74,34,40
+USU-24,Usuario Administrativo/Institucional,Secretaría General y Mesa de Partes,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,30,50
+USU-25,Usuario Administrativo/Institucional,Administración y Logística,4,5,5,5,4,5,4,5,4,4,4,4,4,4,5,5,71,32,39
+USU-26,Usuario Administrativo/Institucional,Laboratorio de Cómputo 01,4,5,5,5,4,4,4,4,4,4,4,4,4,4,5,4,68,49,19
+USU-27,Usuario Administrativo/Institucional,Laboratorio de Cómputo 02,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,22,42
+USU-28,Usuario Administrativo/Institucional,Biblioteca Institucional,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,28,36
+USU-29,Usuario Administrativo/Institucional,Sala de Docentes,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,33,31
+USU-30,Usuario Administrativo/Institucional,Coordinación de Tutoría (TOE),4,4,5,4,4,4,4,5,4,5,4,4,4,5,4,4,68,20,48
+USU-31,Usuario Administrativo/Institucional,Oficina de SIAGIE,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,51,29
+USU-32,Usuario Administrativo/Institucional,Dirección General,5,5,5,5,4,5,5,5,5,5,4,5,5,5,5,5,78,45,33
+USU-33,Usuario Administrativo/Institucional,Subdirección Académica,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,19,61
+USU-34,Usuario Administrativo/Institucional,Secretaría General y Mesa de Partes,5,4,5,5,5,4,5,5,5,4,5,5,5,4,4,5,75,31,44
+USU-35,Usuario Administrativo/Institucional,Administración y Logística,4,4,4,4,5,4,4,5,4,4,4,5,5,5,4,4,69,47,22
+SOP-01,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,49,31
+SOP-02,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,64,19,45
+SOP-03,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,4,4,3,4,4,4,4,4,4,4,4,4,4,3,4,4,62,20,42
+SOP-04,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,80,50,30
+SOP-05,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,4,4,5,4,5,4,4,5,4,4,4,4,4,5,5,4,69,31,38
+SOP-06,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,5,5,5,5,5,5,5,5,5,4,5,5,4,5,4,5,77,18,59
+SOP-07,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,4,4,4,4,4,4,4,5,5,4,4,5,4,4,4,4,67,31,36
+SOP-08,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,4,4,4,4,4,4,4,4,4,4,4,4,5,4,4,4,65,38,27
+SOP-09,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,4,4,5,5,5,5,4,5,4,4,5,4,5,5,4,4,72,34,38
+SOP-10,Personal de Soporte Técnico,Unidad de Soporte Técnico TI,5,5,4,4,5,5,5,5,4,4,5,4,5,5,4,4,73,38,35
